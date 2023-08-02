@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.plugin.task.api;
 
+import org.apache.commons.lang3.SystemUtils;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,7 @@ public class TaskConstants {
      * exit code kill
      */
     public static final int EXIT_CODE_KILL = 137;
-    public static final String PID = "pid";
+    public static final String PID = SystemUtils.IS_OS_WINDOWS ? "handle" : "pid";
 
     /**
      * QUESTION ?
