@@ -115,16 +115,15 @@ public abstract class AbstractCommandExecutor {
     private void buildProcess(String commandFile) throws IOException {
         // setting up user to run commands
         List<String> command = new LinkedList<>();
-
         // init process builder
         ProcessBuilder processBuilder = new ProcessBuilder();
         // setting up a working directory
-        processBuilder.directory(new File(taskRequest.getExecutePath()));
+        processBuilder.directory(new File(taskRequest.getExecutePath()).getAbsoluteFile());
         // merge error information to standard output stream
         processBuilder.redirectErrorStream(true);
 
         // if sudo.enable=true,setting up user to run commands
-        if (OSUtils.isSudoEnable()) {
+        if (OSUtils.isSudoEnable() && !SystemUtils.IS_OS_WINDOWS) {
             if (SystemUtils.IS_OS_LINUX
                     && PropertyUtils.getBoolean(AbstractCommandExecutorConstants.TASK_RESOURCE_LIMIT_STATE)) {
                 generateCgroupCommand(command);
@@ -136,13 +135,15 @@ public abstract class AbstractCommandExecutor {
             }
         }
         command.add(commandInterpreter());
+        if (SystemUtils.IS_OS_WINDOWS) {
+            command.add("/c");
+        }
         command.addAll(Collections.emptyList());
-        command.add(commandFile);
+        command.add(new File(commandFile).getAbsoluteFile().toString());
 
         // setting commands
         processBuilder.command(command);
         process = processBuilder.start();
-
         printCommand(command);
     }
 
@@ -431,7 +432,11 @@ public abstract class AbstractCommandExecutor {
             Field f = process.getClass().getDeclaredField(TaskConstants.PID);
             f.setAccessible(true);
 
-            processId = f.getInt(process);
+            if (SystemUtils.IS_OS_WINDOWS) {
+                processId = ((Long)f.get(process)).intValue();
+            } else {
+                processId = f.getInt(process);
+            }
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

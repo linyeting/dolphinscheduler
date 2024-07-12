@@ -65,7 +65,7 @@ public class TaskExecutionCheckerUtils {
             } else {
                 osUserExistFlag = OSUtils.getUserList().contains(tenantCode);
             }
-            if (!osUserExistFlag) {
+            if (!osUserExistFlag && SystemUtils.IS_OS_LINUX) {
                 throw new TaskException(
                         String.format("TenantCode: %s doesn't exist", tenantCode));
             }

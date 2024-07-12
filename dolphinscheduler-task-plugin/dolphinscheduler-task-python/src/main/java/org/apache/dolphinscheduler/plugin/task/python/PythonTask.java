@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.plugin.task.python;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.AbstractTask;
 import org.apache.dolphinscheduler.plugin.task.api.ShellCommandExecutor;
@@ -234,7 +235,7 @@ public class PythonTask extends AbstractTask {
     protected String buildPythonExecuteCommand(String pythonFile) {
         Preconditions.checkNotNull(pythonFile, "Python file cannot be null");
 
-        String pythonHome = String.format("${%s}", PYTHON_HOME);
+        String pythonHome = String.format(SystemUtils.IS_OS_WINDOWS? "%%%s%%" : "${%s}", PYTHON_HOME);
 
         return pythonHome + " " + pythonFile;
     }
